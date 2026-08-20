@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Monikielisen kielitieteellisen termipankin ensimmäinen käyttöliittymäprototyyppi.">
+  <title>Monikielinen kielitieteellinen termipankki (ML-LingTerm)</title>
+  <style>
+:root {
+  --paper: #f5f1e8;
+  --paper-deep: #ebe5d8;
+  --card: #fffdf8;
+  --ink: #17302f;
+  --muted: #637270;
+  --teal: #155d58;
+  --teal-dark: #0d4643;
+  --teal-soft: #dceae5;
+  --gold: #d6a63b;
+  --coral: #d96e4f;
+  --line: #d8d6cc;
+  --shadow: 0 24px 70px rgba(22, 54, 51, 0.1);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 88% 10%, rgba(214, 166, 59, 0.13), transparent 26rem),
+    var(--paper);
+  color: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+button, input { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; }
+
+.site-header {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  min-height: 86px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  text-decoration: none;
+}
+.brand-mark {
+  width: 45px;
+  height: 45px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: var(--teal);
+  color: #fff;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  letter-spacing: -.02em;
+  box-shadow: 0 9px 24px rgba(21, 93, 88, .22);
+}
+.brand > span:last-child { display: grid; gap: 2px; }
+.brand strong { font-size: 16px; letter-spacing: .01em; }
+.brand small { color: var(--muted); font-size: 12px; }
+.about-link {
+  color: var(--teal-dark);
+  font-size: 13px;
+  font-weight: 700;
+  text-underline-offset: 5px;
+}
+
+.hero {
+  width: min(1180px, calc(100% - 40px));
+  margin: 30px auto 0;
+  display: grid;
+  grid-template-columns: minmax(0, .84fr) minmax(460px, 1.16fr);
+  gap: 58px;
+  align-items: center;
+  min-height: 390px;
+}
+.hero-copy { padding: 34px 0 50px; }
+.eyebrow {
+  margin: 0 0 14px;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+h1, h2, h3, p { margin-top: 0; }
+h1, .concept-heading h2, .about-section h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+}
+h1 {
+  margin-bottom: 20px;
+  font-size: clamp(44px, 5.6vw, 72px);
+  line-height: .99;
+  letter-spacing: -.047em;
+}
+.hero-intro {
+  max-width: 520px;
+  margin-bottom: 0;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.7;
+}
+.search-panel {
+  position: relative;
+  padding: 31px;
+  border: 1px solid rgba(21, 93, 88, .19);
+  border-radius: 28px;
+  background: rgba(255, 253, 248, .88);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(12px);
+}
+.search-panel::before {
+  content: "";
+  position: absolute;
+  inset: -9px auto auto -9px;
+  width: 52px;
+  height: 52px;
+  border-top: 2px solid var(--gold);
+  border-left: 2px solid var(--gold);
+  border-radius: 18px 0 0;
+  pointer-events: none;
+}
+.search-panel label {
+  display: block;
+  margin: 0 0 10px 3px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+}
+.search-box {
+  min-height: 62px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid var(--teal);
+  border-radius: 16px;
+  background: #fff;
+  padding: 0 15px;
+  transition: box-shadow .2s, transform .2s;
+}
+.search-box:focus-within {
+  box-shadow: 0 0 0 5px rgba(21, 93, 88, .12);
+  transform: translateY(-1px);
+}
+.search-box > svg {
+  width: 23px;
+  height: 23px;
+  fill: none;
+  stroke: var(--teal);
+  stroke-width: 1.8;
+}
+.search-box input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+  font-size: 16px;
+}
+.search-box input::placeholder { color: #88918e; }
+.clear-button {
+  border: 0;
+  padding: 6px 8px;
+  background: transparent;
+  color: var(--teal);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+.language-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.language-strip > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.example-searches {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.example-searches button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: var(--paper);
+  color: var(--teal-dark);
+  cursor: pointer;
+  transition: background .2s, border-color .2s;
+}
+.example-searches button:hover { background: var(--teal-soft); border-color: #aacac2; }
+
+.flag {
+  width: 24px;
+  height: 17px;
+  display: inline-block;
+  flex: 0 0 auto;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(23, 48, 47, .14);
+  overflow: hidden;
+}
+.flag--small { width: 15px; height: 10px; border-radius: 2px; }
+.flag-stack {
+  position: relative;
+  display: inline-flex;
+  min-width: 29px;
+  padding-right: 5px;
+}
+.flag-stack .flag--small {
+  position: absolute;
+  right: 0;
+  bottom: -2px;
+  box-shadow: 0 0 0 2px var(--card);
+}
+
+.workspace {
+  width: min(1180px, calc(100% - 40px));
+  margin: 68px auto 0;
+  display: grid;
+  grid-template-columns: minmax(330px, .78fr) minmax(500px, 1.22fr);
+  gap: 24px;
+  align-items: start;
+}
+.results-panel, .concept-card {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--card);
+}
+.results-panel { padding: 25px 16px 16px; }
+.section-heading, .concept-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.section-heading { padding: 0 10px 18px; }
+.section-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.data-count, .status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  border-radius: 999px;
+  padding: 0 10px;
+  white-space: nowrap;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+.data-count { background: var(--paper); color: var(--muted); }
+.status-pill { background: var(--teal-soft); color: var(--teal-dark); }
+.result-list { display: grid; gap: 7px; }
+.result-item {
+  width: 100%;
+  display: grid;
+  gap: 7px;
+  border: 1px solid transparent;
+  border-radius: 15px;
+  padding: 15px 14px;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+.result-item:hover { background: #f6f7f2; transform: translateX(2px); }
+.result-item:focus-visible { outline: 3px solid rgba(21, 93, 88, .23); outline-offset: 1px; }
+.result-item--active {
+  border-color: #b7d0c9;
+  background: var(--teal-soft);
+}
+.result-topline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+}
+.result-topline strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+.result-topline > span { color: var(--teal); }
+.result-translations {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.match-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.match-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 6px;
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, .68);
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 700;
+}
+.match-badge .flag { width: 16px; height: 11px; }
+.match-badge .flag-stack { min-width: 20px; padding-right: 4px; }
+.match-badge .flag-stack .flag--small { width: 10px; height: 7px; }
+.empty-state {
+  display: grid;
+  gap: 8px;
+  padding: 38px 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.concept-card {
+  position: sticky;
+  top: 18px;
+  padding: 33px;
+  box-shadow: 0 20px 55px rgba(22, 54, 51, .07);
+}
+.concept-heading {
+  padding-bottom: 25px;
+  border-bottom: 1px solid var(--line);
+}
+.concept-heading h2 {
+  margin: 0;
+  font-size: clamp(34px, 4vw, 48px);
+  letter-spacing: -.035em;
+}
+.term-groups { display: grid; gap: 15px; margin-top: 23px; }
+.term-group {
+  border: 1px solid #dfded6;
+  border-radius: 17px;
+  overflow: hidden;
+  background: #fff;
+}
+.term-group > h3 {
+  min-height: 43px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  padding: 0 17px;
+  background: #f2f1eb;
+  color: var(--teal-dark);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.term-group--sami > h3 { background: linear-gradient(90deg, rgba(221,31,25,.08), rgba(0,115,36,.08), rgba(255,207,0,.11), rgba(0,50,174,.08)); }
+.term-group > h3 .flag { width: 21px; height: 15px; }
+.term-list { display: grid; }
+.term-row {
+  min-height: 59px;
+  display: grid;
+  grid-template-columns: minmax(175px, .9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 20px;
+  padding: 11px 17px;
+}
+.term-row + .term-row { border-top: 1px solid #ebe9e1; }
+.term-language {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+.term-row > strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.details-panel {
+  margin-top: 17px;
+  border: 1px solid #c9d8d3;
+  border-radius: 17px;
+  background: #f4f8f5;
+  overflow: hidden;
+}
+.details-panel summary {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 13px 17px;
+  cursor: pointer;
+  list-style: none;
+}
+.details-panel summary::-webkit-details-marker { display: none; }
+.details-panel summary > span:first-child { display: grid; gap: 4px; }
+.details-panel summary strong { font-size: 13px; }
+.details-panel summary small { color: var(--muted); font-size: 10px; }
+.summary-icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--teal);
+  color: #fff;
+  font-size: 17px;
+  transition: transform .2s;
+}
+.details-panel[open] .summary-icon { transform: rotate(45deg); }
+.details-content {
+  display: grid;
+  gap: 18px;
+  padding: 20px 17px;
+  border-top: 1px solid #d8e2de;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.details-content section h3 { margin-bottom: 7px; color: var(--ink); font-size: 12px; }
+.details-content section p, .details-content ul { margin-bottom: 0; }
+.details-content ul { padding-left: 18px; }
+.metadata-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.metadata-row span {
+  display: grid;
+  gap: 3px;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fff;
+  font-size: 10px;
+}
+.metadata-row strong { color: var(--ink); }
+.muted { margin: 0; }
+
+.about-section {
+  width: min(900px, calc(100% - 40px));
+  margin: 110px auto 100px;
+  padding: 51px 58px;
+  border-left: 4px solid var(--gold);
+  background: rgba(255, 253, 248, .62);
+}
+.about-section h2 { margin-bottom: 17px; font-size: 35px; letter-spacing: -.025em; }
+.about-section > p:last-child { max-width: 720px; margin-bottom: 0; color: var(--muted); line-height: 1.75; }
+footer {
+  width: min(1180px, calc(100% - 40px));
+  min-height: 100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+footer strong { color: var(--teal-dark); font-size: 14px; }
+
+@media (max-width: 940px) {
+  .hero { grid-template-columns: 1fr; gap: 0; }
+  .hero-copy { padding-bottom: 25px; }
+  .workspace { grid-template-columns: 1fr; }
+  .concept-card { position: static; }
+}
+
+@media (max-width: 620px) {
+  .site-header, .hero, .workspace, footer { width: min(100% - 24px, 1180px); }
+  .site-header { min-height: 76px; }
+  .brand small { display: none; }
+  .about-link { font-size: 11px; }
+  .hero { margin-top: 12px; }
+  .hero-copy { padding-top: 24px; }
+  h1 { font-size: 43px; }
+  .search-panel { padding: 21px 16px; border-radius: 21px; }
+  .search-box { min-height: 58px; }
+  .search-box input { font-size: 14px; }
+  .language-strip { gap: 8px 11px; }
+  .workspace { margin-top: 45px; }
+  .concept-card { padding: 22px 15px; }
+  .concept-heading { padding: 0 4px 21px; }
+  .concept-heading h2 { font-size: 36px; }
+  .status-pill { display: none; }
+  .term-row { grid-template-columns: 1fr; gap: 6px; padding: 13px 14px; }
+  .term-row > strong { padding-left: 39px; }
+  .about-section { width: calc(100% - 24px); margin: 75px auto 60px; padding: 34px 25px; }
+  .about-section h2 { font-size: 29px; }
+  footer { min-height: 118px; align-items: flex-start; justify-content: center; flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { scroll-behavior: auto !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="ML-LingTerm etusivulle">
+      <span class="brand-mark">ML</span>
+      <span><strong>ML-LingTerm</strong><small>Monikielinen kielitieteellinen termipankki</small></span>
+    </a>
+    <a class="about-link" href="#tietoa">Tietoa prototyypistä</a>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-copy">
+      <p class="eyebrow">Monikielinen termihaku</p>
+      <h1>Kielitieteen käsitteet<br>yhdessä paikassa.</h1>
+      <p class="hero-intro">Hae kielitieteellistä termiä suomeksi, ruotsiksi, espanjaksi, portugaliksi tai pohjoissaameksi.</p>
+    </div>
+    <div class="search-panel">
+      <label for="term-search">Hae millä tahansa sanakirjan kielellä</label>
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"></path></svg>
+        <input id="term-search" type="search" placeholder="Esim. affiksi, adjetivo tai giellaoahppa" autocomplete="off">
+        <button class="clear-button" id="clear-search" type="button" hidden>Tyhjennä</button>
+      </div>
+      <div class="language-strip" id="language-strip" aria-label="Sanakirjan kielet"></div>
+      <div class="example-searches"><span>Kokeile:</span><button type="button" data-example="kielioppi">kielioppi</button><button type="button" data-example="affiksi">affiksi</button><button type="button" data-example="adjektiivi">adjektiivi</button><button type="button" data-example="akronyymi">akronyymi</button></div>
+    </div>
+  </section>
+
+  <section class="workspace" aria-live="polite">
+    <aside class="results-panel">
+      <div class="section-heading"><div><p class="eyebrow">Hakutulokset</p><h2 id="results-title">Esimerkkikäsitteitä</h2></div><span class="data-count">43 testitietuetta</span></div>
+      <div class="result-list" id="result-list"></div>
+    </aside>
+    <article class="concept-card" id="concept-card"></article>
+  </section>
+
+  <section class="about-section" id="tietoa">
+    <p class="eyebrow">Tietoa prototyypistä</p>
+    <h2>Ensimmäinen luonnos monikielisestä termipankista</h2>
+    <p>Tämä versio testaa yleishakua, kielivarianttien esittämistä ja kaksitasoista käsitekorttia. Sisältö perustuu hankkeen rajattuun Excel-testiaineistoon, eikä puuttuvia termejä tai määritelmiä ole täydennetty automaattisesti.</p>
+  </section>
+  <footer><strong>ML-LingTerm</strong><span>Monikielinen kielitieteellinen termipankki · käyttöliittymäprototyyppi</span></footer>
+</main>
+
+<script>
+const concepts = [{"id":"example-kielioppi","fi":"kielioppi","sv":"","es":"","ptPT":"","ptBR":"","seCommon":"","seFI":"giellaoahppa","seNO":"grammatihkka","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":"Pohjoissaamen alueellisen vaihtelun esimerkkitietue."},"sourceRow":null},{"id":"excel-002","fi":"aakkosellinen","sv":"alfabetisk","es":"alfabético","ptPT":"alfabético","ptBR":"","seCommon":"alfabehtalaš","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":2},{"id":"excel-003","fi":"aakkoset","sv":"alfabet t","es":"alfabeto m","ptPT":"alfabeto m","ptBR":"","seCommon":"alfabehtat","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":3},{"id":"excel-004","fi":"aakkosten ja oikeinkirjoituksen tutkija","sv":"alfabetforskare n","es":"alfabetista (m/f)","ptPT":"alfabetista (m/f)","ptBR":"","seCommon":"alfabehta ja riektačállima dutki","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":4},{"id":"excel-005","fi":"aaltoviiva","sv":"tildetecken t","es":"tilde m","ptPT":"til m","ptBR":"","seCommon":"tilde","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"ñ-kirjaimen päällä","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":5},{"id":"excel-006","fi":"abessiivi","sv":"abessiv n","es":"abesivo m","ptPT":"abessivo m","ptBR":"","seCommon":"abessiiva","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":6},{"id":"excel-007","fi":"ablatiivi","sv":"ablativ n","es":"ablativo m","ptPT":"ablativo m","ptBR":"","seCommon":"ablatiiva","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":7},{"id":"excel-008","fi":"absoluuttinen rakenne","sv":"absolut konstruktion n","es":"construcción absoluta f","ptPT":"construção absoluta f","ptBR":"","seCommon":"absoluhtalaš struktuvra","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":8},{"id":"excel-009","fi":"affiksi","sv":"affix n","es":"afijo m","ptPT":"afixo m","ptBR":"","seCommon":"affiksa","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":9},{"id":"excel-010","fi":"affiksoiminen","sv":"affixering n","es":"afijación f","ptPT":"afixação f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":10},{"id":"excel-011","fi":"affrikaatta","sv":"affrikata n","es":"consonante africada f","ptPT":"consoante africada f","ptBR":"","seCommon":"affrikáhta","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":11},{"id":"excel-015","fi":"adessiivi","sv":"adessiv n","es":"adesivo m","ptPT":"adessivo m","ptBR":"","seCommon":"adessiiva","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":15},{"id":"excel-016","fi":"adjektiivi","sv":"adjektiv t","es":"adjetivo m","ptPT":"adjetivo","ptBR":"","seCommon":"adjektiiva","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":16},{"id":"excel-017","fi":"adjektiivi","sv":"adjektiv t","es":"adyacente","ptPT":"adjetivo","ptBR":"","seCommon":"adjektiiva","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"I Alarcos Llorachs terminologi","es":"En la terminología de Alarcos Llorach","pt":"Na terminologia de Alarcos Llorach","se":"Alarco Lloracha terminologiijas"},"notes":{"fi":"Alarcos Llorachin terminologiassa"},"sourceRow":17},{"id":"excel-018","fi":"adjektiivistuminen","sv":"adjektivisering n","es":"adjetivación f","ptPT":"adjetivação f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":18},{"id":"excel-019","fi":"adjektiivisoituminen","sv":"adjektivisering n","es":"adjetivación f","ptPT":"adjetivação f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":19},{"id":"excel-020","fi":"adjektiiviattribuutti","sv":"adjektivattribut t","es":"adjetivo atributo m","ptPT":"atributo m","ptBR":"","seCommon":"adjektiiva-attribuhtta","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":20},{"id":"excel-021","fi":"adjunkti","sv":"adjunkt n","es":"adjunto m","ptPT":"adjunto m","ptBR":"","seCommon":"adjunkta","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":21},{"id":"excel-022","fi":"adstraatti","sv":"adstrat t","es":"adstrato m","ptPT":"adstrato m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":22},{"id":"excel-023","fi":"adverbi","sv":"adverb t","es":"adverbio m","ptPT":"advérbio m","ptBR":"","seCommon":"advearba","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":23},{"id":"excel-024","fi":"adverbiaali","sv":"adverbial t","es":"complemento circunstancial m","ptPT":"complemento circunstancial m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":24},{"id":"excel-025","fi":"adverbiaali","sv":"adverbial enligt Alarcos Llorachs terminologi","es":"aditamento m","ptPT":"aditamento m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"Emilio Alarcos Llorachin terminologiassa","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":25},{"id":"excel-026","fi":"adverbifraasi","sv":"adverbfras n","es":"locución adverbial f","ptPT":"locução adverbial f","ptBR":"","seCommon":"advearbafrása","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":26},{"id":"excel-027","fi":"adversatiivinen konjunktio","sv":"adversativ konjunktion n","es":"conjunción adversativa f","ptPT":"conjunção adversativa f","ptBR":"","seCommon":"adversatiiva konjunkšuvdna","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":27},{"id":"excel-028","fi":"adpositio","sv":"adposition n","es":"adposición f","ptPT":"adposição f","ptBR":"","seCommon":"adposišuvdna","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":28},{"id":"excel-029","fi":"afasia","sv":"afasi n","es":"afasia f","ptPT":"afasia de Broca/Wernicke","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"Brocan/Wernicken afasia","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":29},{"id":"excel-030","fi":"aferesis","sv":"aferes n","es":"aféresis m","ptPT":"aférese m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":30},{"id":"excel-033","fi":"affrikaatio","sv":"affrikation n","es":"africación f","ptPT":"africação f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":33},{"id":"excel-035","fi":"agentti","sv":"agent n","es":"agente m","ptPT":"agente m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":35},{"id":"excel-036","fi":"agentti","sv":"agent i kritisk diskursforskning","es":"operador","ptPT":"operador m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"kriittinen  diskurssintutkimus","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":36},{"id":"excel-037","fi":"aikamuoto","sv":"tempus t","es":"tiempo verbal m","ptPT":"tempo verbal m","ptBR":"","seCommon":"áígehápmi","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":37},{"id":"excel-038","fi":"aikamuotojen vastaavuus","sv":"tempuskonkordans n","es":"concordancia temporal f","ptPT":"concordância temporal f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":38},{"id":"excel-039","fi":"akkusatiivi","sv":"ackusativ n","es":"acusativo m","ptPT":"acusativo m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":39},{"id":"excel-040","fi":"akrolekti","sv":"akrolekt n","es":"acrolecto m","ptPT":"acrolecto m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":40},{"id":"excel-041","fi":"akronyymi","sv":"akronym n","es":"acrónimo m","ptPT":"acrónimo m","ptBR":"acrônimo m","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":41},{"id":"excel-042","fi":"aksentti","sv":"accent n","es":"acento m","ptPT":"acento m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":42},{"id":"excel-043","fi":"aksentti","sv":"accenttecken t","es":"tilde m","ptPT":"til m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":43},{"id":"excel-044","fi":"aktantti","sv":"aktant n","es":"actante m","ptPT":"actante m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"dependenssikielioppi","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":44},{"id":"excel-045","fi":"aktiivi","sv":"aktivum t","es":"voz activa f","ptPT":"voz ativa f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":45},{"id":"excel-046","fi":"aktionaalisuus","sv":"aktionalitet n","es":"accionalidad f","ptPT":"accionalidade f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":46},{"id":"excel-047","fi":"aktori","sv":"aktör","es":"actor m","ptPT":"ator m","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":"predikaatin ilmaiseman toiminnan suorittaja"},"sourceRow":47},{"id":"excel-048","fi":"aktualisaatio","sv":"aktualisering n","es":"actualización f","ptPT":"atualização f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":48},{"id":"excel-049","fi":"aktuaalistuminen","sv":"aktualisering n","es":"actualización f","ptPT":"atualização f","ptBR":"","seCommon":"","seFI":"","seNO":"","seSE":"","qualifiers":{"fi":"","sv":"","es":"","pt":"","se":""},"notes":{"fi":""},"sourceRow":49}];
+let activeId = "example-kielioppi";
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, function (char) {
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char];
+  });
+}
+function norm(value) {
+  return String(value ?? "").toLocaleLowerCase("fi").normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "").replace(/[đð]/g, "d").replace(/ŧ/g, "t")
+    .replace(/ŋ/g, "n").replace(/æ/g, "ae").replace(/ø/g, "o").trim();
+}
+function flag(name, small) {
+  const cls = small ? "flag flag--small" : "flag";
+  const label = {fi:"Suomen lippu",sv:"Ruotsin lippu",es:"Espanjan lippu",pt:"Portugalin lippu",br:"Brasilian lippu",no:"Norjan lippu",sami:"Saamen lippu"}[name];
+  const open = '<svg class="'+cls+'" role="img" aria-label="'+label+'"';
+  if (name === "fi") return open+' viewBox="0 0 18 11"><rect width="18" height="11" fill="#fff"/><path d="M0 4h18v3H0zM5 0h3v11H5z" fill="#002f6c"/></svg>';
+  if (name === "sv") return open+' viewBox="0 0 16 10"><rect width="16" height="10" fill="#006aa7"/><path d="M0 4h16v2H0zM5 0h2v10H5z" fill="#fecc02"/></svg>';
+  if (name === "es") return open+' viewBox="0 0 18 12"><path fill="#aa151b" d="M0 0h18v12H0z"/><path fill="#f1bf00" d="M0 3h18v6H0z"/></svg>';
+  if (name === "pt") return open+' viewBox="0 0 18 12"><path fill="#046a38" d="M0 0h7.2v12H0z"/><path fill="#da291c" d="M7.2 0H18v12H7.2z"/><circle cx="7.2" cy="6" r="2.15" fill="#ffcd00"/><path d="M6.25 4.8h1.9v2.3c-.55.62-1.35.62-1.9 0z" fill="#fff" stroke="#c8102e" stroke-width=".3"/></svg>';
+  if (name === "br") return open+' viewBox="0 0 18 13"><path fill="#009c3b" d="M0 0h18v13H0z"/><path fill="#ffdf00" d="M9 1.3 16.1 6.5 9 11.7 1.9 6.5z"/><circle cx="9" cy="6.5" r="2.8" fill="#002776"/><path d="M6.55 6.1c1.5-.55 3.4-.35 4.9.45" fill="none" stroke="#fff" stroke-width=".45"/></svg>';
+  if (name === "no") return open+' viewBox="0 0 22 16"><path fill="#ba0c2f" d="M0 0h22v16H0z"/><path d="M0 6h22v4H0zM6 0h4v16H6z" fill="#fff"/><path d="M0 7h22v2H0zM7 0h2v16H7z" fill="#00205b"/></svg>';
+  return open+' viewBox="0 0 808 600"><path fill="#0035ad" d="M0 0h808v600H0z"/><path fill="#ffce00" d="M0 0h370v600H0z"/><path fill="#007229" d="M0 0h314v600H0z"/><path fill="#dc241f" d="M0 0h258v600H0z"/><path fill="#0035ad" d="M314 108a192 192 0 0 0 0 384l16-16-16-16a160 160 0 0 1 0-320l16-16-16-16z"/><path fill="none" stroke="#dc241f" stroke-width="32" d="M314 124a176 176 0 0 1 0 352"/></svg>';
+}
+function stack(country) { return '<span class="flag-stack" aria-hidden="true">'+flag("sami")+(country ? flag(country, true) : "")+'</span>'; }
+const fields = [
+  {key:"fi",label:"Suomi",flag:"fi"},{key:"sv",label:"Ruotsi",flag:"sv"},{key:"es",label:"Espanja",flag:"es"},
+  {key:"ptPT",label:"Portugalin portugali",flag:"pt"},{key:"ptBR",label:"Brasilian portugali",flag:"br"},
+  {key:"seCommon",label:"Pohjoissaame",flag:"sami"},{key:"seFI",label:"Pohjoissaame · Suomi",flag:"sami",country:"fi"},
+  {key:"seNO",label:"Pohjoissaame · Norja",flag:"sami",country:"no"},{key:"seSE",label:"Pohjoissaame · Ruotsi",flag:"sami",country:"sv"}
+];
+function available(c) { return fields.filter(function (field) { return c[field.key]; }); }
+function searchText(c) { return norm(fields.map(function (field) { return c[field.key]; }).concat(Object.values(c.qualifiers), Object.values(c.notes)).join(" ")); }
+function row(flagName, label, term, country) {
+  const icon = flagName === "sami" ? stack(country) : flag(flagName);
+  const lang = flagName === "sami" ? "se" : (flagName === "pt" || flagName === "br" ? "pt" : flagName);
+  return '<div class="term-row"><div class="term-language">'+icon+'<span>'+esc(label)+'</span></div><strong lang="'+lang+'">'+esc(term)+'</strong></div>';
+}
+function group(title, rows, sami) {
+  if (!rows) return "";
+  return '<section class="term-group'+(sami?' term-group--sami':'')+'"><h3>'+(sami?flag("sami")+" ":"")+esc(title)+'</h3><div class="term-list">'+rows+'</div></section>';
+}
+function renderConcept(c) {
+  const core = (c.fi ? row("fi","Suomi",c.fi) : "")+(c.sv ? row("sv","Ruotsi",c.sv) : "")+(c.es ? row("es","Espanja",c.es) : "");
+  const pt = (c.ptPT ? row("pt","Portugalin variantti",c.ptPT) : "")+(c.ptBR ? row("br","Brasilian variantti",c.ptBR) : "");
+  const se = (c.seCommon ? row("sami","Variantti määrittelemättä",c.seCommon) : "")+(c.seFI ? row("sami","Suomen variantti",c.seFI,"fi") : "")+(c.seNO ? row("sami","Norjan variantti",c.seNO,"no") : "")+(c.seSE ? row("sami","Ruotsin variantti",c.seSE,"sv") : "");
+  const notes = Object.values(c.notes).filter(Boolean);
+  const qualifiers = Object.values(c.qualifiers).filter(Boolean);
+  let details = "";
+  if (notes.length) details += '<section><h3>Lisätiedot</h3>'+notes.map(function (v) { return '<p>'+esc(v)+'</p>'; }).join("")+'</section>';
+  if (qualifiers.length) details += '<section><h3>Käyttöhuomautukset</h3><ul>'+qualifiers.map(function (v) { return '<li>'+esc(v)+'</li>'; }).join("")+'</ul></section>';
+  if (!details) details = '<p class="muted">Tarkemmat määritelmät ja lähdetiedot lisätään toimitustyön yhteydessä.</p>';
+  document.getElementById("concept-card").innerHTML = '<div class="concept-heading"><div><p class="eyebrow">Käsitteen tiivistelmä</p><h2>'+esc(c.fi)+'</h2></div><span class="status-pill">Testiaineisto</span></div><div class="term-groups">'+group("Termivastineet",core,false)+group("Portugali",pt,false)+group("Pohjoissaame",se,true)+'</div><details class="details-panel"><summary><span><strong>Näytä tarkemmat tiedot</strong><small>Määritelmät, käyttöhuomautukset ja lähteet</small></span><span class="summary-icon" aria-hidden="true">+</span></summary><div class="details-content">'+details+'<section class="metadata-row"><span><strong>Käsitetunnus</strong>'+esc(c.id)+'</span><span><strong>Tila</strong>Prototyyppitietue</span></section></div></details>';
+}
+function renderResults() {
+  const query = document.getElementById("term-search").value;
+  const n = norm(query);
+  const results = (n ? concepts.filter(function (c) { return searchText(c).includes(n); }) : concepts.slice(0,7)).slice(0,20);
+  document.getElementById("results-title").textContent = n ? results.length+" osumaa" : "Esimerkkikäsitteitä";
+  const list = document.getElementById("result-list");
+  if (!results.length) { list.innerHTML = '<div class="empty-state"><strong>Hakusanalla ei löytynyt osumia.</strong><span>Kokeile toista kirjoitusasua tai lyhyempää hakua.</span></div>'; return; }
+  if (!concepts.some(function (c) { return c.id === activeId; })) activeId = results[0].id;
+  list.innerHTML = results.map(function (c) {
+    const terms = available(c);
+    const matches = terms.filter(function (f) { return n ? norm(c[f.key]).includes(n) : true; }).slice(0,4);
+    const badges = matches.map(function (f) { return '<span class="match-badge">'+(f.flag === "sami" ? stack(f.country) : flag(f.flag)) + esc(f.label)+'</span>'; }).join("");
+    const translations = terms.slice(1,4).map(function (f) { return c[f.key]; }).filter(Boolean).join(" · ") || "Käännöksiä täydennetään";
+    return '<button type="button" class="result-item '+(activeId===c.id?'result-item--active':'')+'" data-id="'+esc(c.id)+'"><span class="result-topline"><strong>'+esc(c.fi)+'</strong><span aria-hidden="true">→</span></span><span class="result-translations">'+esc(translations)+'</span><span class="match-badges">'+badges+'</span></button>';
+  }).join("");
+  list.querySelectorAll("[data-id]").forEach(function (button) { button.addEventListener("click", function () { activeId = button.dataset.id; renderResults(); renderConcept(concepts.find(function (c) { return c.id === activeId; })); }); });
+}
+document.getElementById("language-strip").innerHTML = '<span>'+flag("fi")+' Suomi</span><span>'+flag("sv")+' Ruotsi</span><span>'+flag("es")+' Espanja</span><span>'+flag("pt")+flag("br",true)+' Portugali</span><span>'+flag("sami")+' Pohjoissaame</span>';
+const search = document.getElementById("term-search");
+const clear = document.getElementById("clear-search");
+search.addEventListener("input", function () { clear.hidden = !search.value; renderResults(); });
+clear.addEventListener("click", function () { search.value = ""; clear.hidden = true; renderResults(); search.focus(); });
+document.querySelectorAll("[data-example]").forEach(function (button) { button.addEventListener("click", function () { search.value = button.dataset.example; clear.hidden = false; const match = concepts.find(function (c) { return searchText(c).includes(norm(search.value)); }); if (match) activeId = match.id; renderResults(); renderConcept(match || concepts[0]); }); });
+renderResults();
+renderConcept(concepts.find(function (c) { return c.id === activeId; }) || concepts[0]);
+</script>
+</body>
+</html>
